@@ -2,14 +2,13 @@
 import './style.css';
 import { GridCell } from './GridCell';
 
-const lineW = 3;
+const isMobile = window.matchMedia('(max-width: 600px)').matches;
+const lineW = isMobile ? 2 : 4;
+let numberOfCellsHor = isMobile ? 10 : 25;
+
 // const cellS = 70;
 // const cols = 20;
 // const rows = 12;
-let numberOfCellsHor = window.matchMedia('(max-width: 600px)').matches
-  ? 10
-  : 25;
-
 const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
