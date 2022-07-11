@@ -6,7 +6,7 @@ const lineW = 2;
 // const cellS = 260;
 // const cols = 3;
 // const rows = 3;
-const cellS = Math.floor(window.innerWidth / 25);
+const cellS = Math.floor(window.innerWidth / 6);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
@@ -20,6 +20,8 @@ let shouldSolveMaze = false;
 let solved = false;
 const start = [0, 0];
 const end = [cols - 1, rows - 1];
+
+const finishedPathArr = [];
 
 let mazeCreated = false;
 let next;
@@ -189,12 +191,16 @@ const drawShell = () => {
 };
 
 const solveMaze = () => {
+  ctx.beginPath();
+  ctx.strokeStyle = 'blue';
+  ctx.moveTo(grid[getIndex(start)].centerX, grid[getIndex(start)].centerY);
   grid.forEach((cell) => {
     if (cell.weight > 0) {
-      cell.printWeight();
+      // cell.printWeight();
+      cell.joinLine();
     }
   });
-
+  ctx.stroke();
   if (solved) {
     calculatePath();
   }
@@ -229,13 +235,11 @@ const solveMaze = () => {
   }
 };
 
-const finishedPathArr = [];
-
 const drawPath = (arr) => {
   ctx.beginPath();
   ctx.lineWidth = cellS * 0.2;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+  ctx.strokeStyle = 'rgba(255,0,0,1)';
   arr.forEach((path, key) => {
     if (key > 1) {
       ctx.moveTo(
@@ -276,7 +280,7 @@ const animate = () => {
   } else {
     drawShell();
   }
-  requestAnimationFrame(animate);
+  // requestAnimationFrame(animate);
 };
 requestAnimationFrame(animate);
 

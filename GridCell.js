@@ -12,6 +12,8 @@ class GridCell {
     this.xOffset = xOffset;
     this.col = col;
     this.row = row;
+    this.centerX = this.col * this.cellS + this.cellS * 0.5;
+    this.centerY = this.row * this.cellS + this.cellS * 0.5;
     this.index = this.col + this.row * this.cols;
     this.wallsWidth = lineWidth;
     this.walls = [true, true];
@@ -29,50 +31,41 @@ class GridCell {
   getAdjacent(onlyOne = true, weights = false) {
     const adjecent = [];
 
-    const top = this.grid[this.getIndex(this.col, this.row - 1)];
-    const right = this.grid[this.getIndex(this.col + 1, this.row)];
-    const bottom = this.grid[this.getIndex(this.col, this.row + 1)];
-    const left = this.grid[this.getIndex(this.col - 1, this.row)];
+    // top
+    const t = this.grid[this.getIndex(this.col, this.row - 1)];
+    // right
+    const r = this.grid[this.getIndex(this.col + 1, this.row)];
+    // bottom
+    const b = this.grid[this.getIndex(this.col, this.row + 1)];
+    // left
+    const l = this.grid[this.getIndex(this.col - 1, this.row)];
 
-    if (top) {
-      if (weights) {
-        adjecent.push(top);
-      } else if (!top.isVisited && (onlyOne ? true : top.walls[1] === false)) {
-        adjecent.push(top);
-      }
+    if (
+      t &&
+      (weights || (!t.isVisited && (onlyOne ? true : t.walls[1] === false)))
+    ) {
+      adjecent.push(t);
     }
 
-    if (right) {
-      if (weights) {
-        adjecent.push(right);
-      } else if (
-        !right.isVisited &&
-        (onlyOne ? true : this.walls[0] === false)
-      ) {
-        adjecent.push(right);
-      }
+    if (
+      r &&
+      (weights || (!r.isVisited && (onlyOne ? true : this.walls[0] === false)))
+    ) {
+      adjecent.push(r);
     }
 
-    if (bottom) {
-      if (weights) {
-        adjecent.push(bottom);
-      } else if (
-        !bottom.isVisited &&
-        (onlyOne ? true : this.walls[1] === false)
-      ) {
-        adjecent.push(bottom);
-      }
+    if (
+      b &&
+      (weights || (!b.isVisited && (onlyOne ? true : this.walls[1] === false)))
+    ) {
+      adjecent.push(b);
     }
 
-    if (left) {
-      if (weights) {
-        adjecent.push(left);
-      } else if (
-        !left.isVisited &&
-        (onlyOne ? true : left.walls[0] === false)
-      ) {
-        adjecent.push(left);
-      }
+    if (
+      l &&
+      (weights || (!l.isVisited && (onlyOne ? true : l.walls[0] === false)))
+    ) {
+      adjecent.push(l);
     }
 
     if (adjecent.length > 0) {
@@ -89,18 +82,11 @@ class GridCell {
     this.ctx.textAlign = 'center';
     this.ctx.fillStyle = 'white';
     this.ctx.font = '16px serif';
-    this.ctx.fillText(
-      this.weight,
-      this.col * this.cellS + this.cellS * 0.5,
-      this.row * this.cellS + this.cellS * 0.5 + 8
-    );
+    this.ctx.fillText(this.weight, this.centerX, this.centerY + 8);
   }
 
   joinLine() {
-    this.ctx.lineTo(
-      this.col * this.cellS + this.cellS * 0.5,
-      this.row * this.cellS + this.cellS * 0.5
-    );
+    this.ctx.lineTo(this.centerX, this.centerY);
   }
 
   display(color) {
