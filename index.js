@@ -3,12 +3,12 @@ import './style.css';
 import { GridCell } from './GridCell';
 
 const lineW = 2;
-// const cellS = 260;
-// const cols = 3;
-// const rows = 3;
-const cellS = Math.floor(window.innerWidth / 6);
-const cols = Math.floor((window.innerWidth - cellS) / cellS);
-const rows = Math.floor((window.innerHeight - cellS) / cellS);
+const cellS = 160;
+const cols = 4;
+const rows = 4;
+// const cellS = Math.floor(window.innerWidth / 30);
+// const cols = Math.floor((window.innerWidth - cellS) / cellS);
+// const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
 const maxH = rows * cellS;
 const canvas = document.querySelector('canvas');
@@ -191,16 +191,32 @@ const drawShell = () => {
 };
 
 const solveMaze = () => {
-  ctx.beginPath();
-  ctx.strokeStyle = 'blue';
-  ctx.moveTo(grid[getIndex(start)].centerX, grid[getIndex(start)].centerY);
-  grid.forEach((cell) => {
+  console.clear();
+  grid.forEach((cell, key) => {
     if (cell.weight > 0) {
-      // cell.printWeight();
-      cell.joinLine();
+      cell.printWeight();
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'blue';
+      ctx.moveTo(cell.centerX, cell.centerY);
+      grid
+        .filter((el) => {
+          return el.weight === cell.weight + 1;
+        })
+        .forEach((el) => {
+          ctx.moveTo(el.centerX, el.centerY);
+        });
+      ctx.stroke();
+      // console.log(
+      //   cell.index,
+      //   cell.weight,
+      //   grid.filter((el) => {
+      //     return el.weight === cell.weight + 1;
+      //   })
+      // );
     }
   });
-  ctx.stroke();
+
   if (solved) {
     calculatePath();
   }
