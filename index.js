@@ -6,7 +6,7 @@ const lineW = 2;
 // const cellS = 70;
 // const cols = 20;
 // const rows = 12;
-const cellS = Math.floor(window.innerWidth / 50);
+const cellS = Math.floor(window.innerWidth / 30);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
@@ -191,10 +191,11 @@ const drawShell = () => {
 };
 
 const solveMaze = () => {
+  ctx.beginPath();
+  ctx.strokeStyle = 'green';
   grid.forEach((cell) => {
     if (cell.weight > 0) {
       // cell.printWeight();
-
       grid
         .filter((el) => {
           return el.weight === cell.weight + 1;
@@ -206,15 +207,13 @@ const solveMaze = () => {
             (Math.abs(cell.row - el.row) === 0 ||
               Math.abs(cell.row - el.row) === 1)
           ) {
-            ctx.beginPath();
-            ctx.strokeStyle = 'green';
             ctx.moveTo(cell.centerX, cell.centerY);
             ctx.lineTo(el.centerX, el.centerY);
-            ctx.stroke();
           }
         });
     }
   });
+  ctx.stroke();
 
   if (solved) {
     calculatePath();
