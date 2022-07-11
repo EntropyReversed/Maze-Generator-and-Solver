@@ -2,11 +2,15 @@
 import './style.css';
 import { GridCell } from './GridCell';
 
-const lineW = 2;
+const lineW = 3;
 // const cellS = 70;
 // const cols = 20;
 // const rows = 12;
-const cellS = Math.floor(window.innerWidth / 30);
+let numberOfCellsHor = window.matchMedia('(max-width: 600px)').matches
+  ? 10
+  : 25;
+
+const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
@@ -19,6 +23,8 @@ let grid = [];
 let startGeneration = false;
 let shouldSolveMaze = false;
 let solved = false;
+let helperLineOp = 1;
+let mainPathOp = 1;
 const start = [0, 0];
 const end = [cols - 1, rows - 1];
 
@@ -70,7 +76,7 @@ const drawMaze = () => {
     current.isVisited = true;
 
     if (stack.length > 0) {
-      current.display('blue');
+      current.display('orange');
     }
     next = current.getAdjacent();
 
@@ -85,8 +91,8 @@ const drawMaze = () => {
 
     if (stack.length) {
       ctx.beginPath();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'orange';
       ctx.moveTo(
         stack[0].col * cellS + cellS * 0.5,
         stack[0].row * cellS + cellS * 0.5
@@ -192,29 +198,37 @@ const drawShell = () => {
 };
 
 const solveMaze = () => {
-  ctx.beginPath();
-  ctx.strokeStyle = 'green';
-  grid
-    .filter((el) => el.weight > 0)
-    .forEach((cell) => {
-      grid
-        .filter((el) => el.weight === cell.weight + 1)
-        .forEach((el) => {
-          if (
-            (Math.abs(cell.col - el.col) === 0 ||
-              Math.abs(cell.col - el.col) === 1) &&
-            (Math.abs(cell.row - el.row) === 0 ||
-              Math.abs(cell.row - el.row) === 1)
-          ) {
-            ctx.moveTo(cell.centerX, cell.centerY);
-            ctx.lineTo(el.centerX, el.centerY);
-          }
-        });
-    });
-  ctx.stroke();
+  if (helperLineOp > 0) {
+    ctx.beginPath();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(240, 230, 20, ${helperLineOp})`;
+    grid
+      .filter((el) => el.weight > 0)
+      .forEach((cell) => {
+        grid
+          .filter((el) => el.weight === cell.weight + 1)
+          .forEach((el) => {
+            if (
+              (Math.abs(cell.col - el.col) === 0 ||
+                Math.abs(cell.col - el.col) === 1) &&
+              (Math.abs(cell.row - el.row) === 0 ||
+                Math.abs(cell.row - el.row) === 1)
+            ) {
+              ctx.moveTo(cell.centerX, cell.centerY);
+              ctx.lineTo(el.centerX, el.centerY);
+            }
+          });
+      });
+    ctx.stroke();
+  }
 
   if (solved) {
     calculatePath();
+    if (helperLineOp < 0.05) {
+      helperLineOp = 0;
+    } else {
+      helperLineOp *= 0.97;
+    }
   }
 
   if (!solved) {
@@ -249,18 +263,18 @@ const solveMaze = () => {
 
 const drawPath = (arr) => {
   ctx.beginPath();
-  ctx.lineWidth = cellS * 0.2;
+  ctx.lineWidth = 2;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = 'rgba(255,0,0,1)';
+  ctx.strokeStyle = `rgba(0,255,0,${mainPathOp})`;
   arr.forEach((path, key) => {
     if (key > 1) {
       ctx.moveTo(
-        arr[key - 1].col * cellS + cellS * 0.5,
-        arr[key - 1].row * cellS + cellS * 0.5
+        arr[key - 1].col * cellS + cellS * 0.5 + lineW * 0.5,
+        arr[key - 1].row * cellS + cellS * 0.5 + lineW * 0.5
       );
       ctx.lineTo(
-        path.col * cellS + cellS * 0.5,
-        path.row * cellS + cellS * 0.5
+        path.col * cellS + cellS * 0.5 + lineW * 0.5,
+        path.row * cellS + cellS * 0.5 + lineW * 0.5
       );
     }
   });
@@ -299,6 +313,7 @@ const animate = () => {
 requestAnimationFrame(animate);
 
 const regenerate = () => {
+  helperLineOp = 1;
   finishedPathArr = [];
 
   generateMaze();
@@ -345,9 +360,14 @@ solveBtn.addEventListener('click', solveMazeCallback);
 let step = 1;
 
 speedBtn.addEventListener('click', (e) => {
+  // speed += step;
+  // if (speed === 4 || speed === 1) {
+  //   step = -step;
+  // }
+
   speed += step;
-  if (speed === 4 || speed === 1) {
-    step = -step;
+  if (speed === 5) {
+    speed = 1;
   }
 
   speedBtn.querySelector('span').innerHTML = speed;
