@@ -3,12 +3,12 @@ import './style.css';
 import { GridCell } from './GridCell';
 
 const lineW = 2;
-const cellS = 160;
-const cols = 4;
-const rows = 4;
-// const cellS = Math.floor(window.innerWidth / 30);
-// const cols = Math.floor((window.innerWidth - cellS) / cellS);
-// const rows = Math.floor((window.innerHeight - cellS) / cellS);
+// const cellS = 70;
+// const cols = 20;
+// const rows = 12;
+const cellS = Math.floor(window.innerWidth / 30);
+const cols = Math.floor((window.innerWidth - cellS) / cellS);
+const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
 const maxH = rows * cellS;
 const canvas = document.querySelector('canvas');
@@ -194,26 +194,34 @@ const solveMaze = () => {
   console.clear();
   grid.forEach((cell, key) => {
     if (cell.weight > 0) {
-      cell.printWeight();
+      // cell.printWeight();
 
-      ctx.beginPath();
-      ctx.strokeStyle = 'blue';
-      ctx.moveTo(cell.centerX, cell.centerY);
       grid
         .filter((el) => {
           return el.weight === cell.weight + 1;
         })
         .forEach((el) => {
-          ctx.moveTo(el.centerX, el.centerY);
+          console.log(
+            `from: ${cell.weight} i=${cell.col},${cell.row} | to: ${
+              el.weight
+            } i=${el.col},${el.row} || ${
+              Math.abs(cell.col - el.col) === 0 ||
+              Math.abs(cell.col - el.col) === 1
+            }`
+          );
+          if (
+            (Math.abs(cell.col - el.col) === 0 ||
+              Math.abs(cell.col - el.col) === 1) &&
+            (Math.abs(cell.row - el.row) === 0 ||
+              Math.abs(cell.row - el.row) === 1)
+          ) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'green';
+            ctx.moveTo(cell.centerX, cell.centerY);
+            ctx.lineTo(el.centerX, el.centerY);
+            ctx.stroke();
+          }
         });
-      ctx.stroke();
-      // console.log(
-      //   cell.index,
-      //   cell.weight,
-      //   grid.filter((el) => {
-      //     return el.weight === cell.weight + 1;
-      //   })
-      // );
     }
   });
 
@@ -296,7 +304,7 @@ const animate = () => {
   } else {
     drawShell();
   }
-  // requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 };
 requestAnimationFrame(animate);
 
@@ -334,7 +342,15 @@ const solveMazeCallback = () => {
 regenerateBtn.addEventListener('click', regenerate);
 clearBtn.addEventListener('click', clearBoard);
 solveBtn.addEventListener('click', solveMazeCallback);
-manualFramesBtn.addEventListener('click', animate);
+manualFramesBtn.addEventListener('click', (e) => {
+  if (e.ctrlKey) {
+    for (let i = 0; i < 4; i++) {
+      animate();
+    }
+  } else {
+    animate();
+  }
+});
 
 canvas.addEventListener('click', (e) => {
   if (!startGeneration) {
