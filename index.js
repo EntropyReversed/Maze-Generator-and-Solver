@@ -6,7 +6,7 @@ const lineW = 2;
 // const cellS = 70;
 // const cols = 20;
 // const rows = 12;
-const cellS = Math.floor(window.innerWidth / 30);
+const cellS = Math.floor(window.innerWidth / 50);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
@@ -191,8 +191,7 @@ const drawShell = () => {
 };
 
 const solveMaze = () => {
-  console.clear();
-  grid.forEach((cell, key) => {
+  grid.forEach((cell) => {
     if (cell.weight > 0) {
       // cell.printWeight();
 
@@ -201,14 +200,6 @@ const solveMaze = () => {
           return el.weight === cell.weight + 1;
         })
         .forEach((el) => {
-          console.log(
-            `from: ${cell.weight} i=${cell.col},${cell.row} | to: ${
-              el.weight
-            } i=${el.col},${el.row} || ${
-              Math.abs(cell.col - el.col) === 0 ||
-              Math.abs(cell.col - el.col) === 1
-            }`
-          );
           if (
             (Math.abs(cell.col - el.col) === 0 ||
               Math.abs(cell.col - el.col) === 1) &&
