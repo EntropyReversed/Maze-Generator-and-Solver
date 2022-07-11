@@ -6,28 +6,29 @@ const lineW = 2;
 // const cellS = 70;
 // const cols = 20;
 // const rows = 12;
-const cellS = Math.floor(window.innerWidth / 20);
+const cellS = Math.floor(window.innerWidth / 30);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
 const maxH = rows * cellS;
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-const stack = [];
-const grid = [];
+let speed = 1;
+let stack = [];
+let grid = [];
 let startGeneration = false;
 let shouldSolveMaze = false;
 let solved = false;
 const start = [0, 0];
 const end = [cols - 1, rows - 1];
 
-const finishedPathArr = [];
+let finishedPathArr = [];
 
 let mazeCreated = false;
 let next;
 let current;
 
-const queue = [];
+let queue = [];
 let solveNext;
 let solveCurrent;
 
@@ -49,8 +50,8 @@ window.addEventListener('resize', () => {
 });
 
 const generateMaze = () => {
-  stack.length = 0;
-  grid.length = 0;
+  stack = [];
+  grid = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       grid.push(
@@ -193,13 +194,11 @@ const drawShell = () => {
 const solveMaze = () => {
   ctx.beginPath();
   ctx.strokeStyle = 'green';
-  grid.forEach((cell) => {
-    if (cell.weight > 0) {
-      // cell.printWeight();
+  grid
+    .filter((el) => el.weight > 0)
+    .forEach((cell) => {
       grid
-        .filter((el) => {
-          return el.weight === cell.weight + 1;
-        })
+        .filter((el) => el.weight === cell.weight + 1)
         .forEach((el) => {
           if (
             (Math.abs(cell.col - el.col) === 0 ||
@@ -211,8 +210,7 @@ const solveMaze = () => {
             ctx.lineTo(el.centerX, el.centerY);
           }
         });
-    }
-  });
+    });
   ctx.stroke();
 
   if (solved) {
@@ -290,7 +288,9 @@ const calculatePath = () => {
 
 const animate = () => {
   if (startGeneration) {
-    drawMaze();
+    for (let i = 0; i < speed; i++) {
+      drawMaze();
+    }
   } else {
     drawShell();
   }
@@ -299,14 +299,14 @@ const animate = () => {
 requestAnimationFrame(animate);
 
 const regenerate = () => {
-  finishedPathArr.length = 0;
+  finishedPathArr = [];
 
   generateMaze();
   current = grid[getIndex(start)];
   stack.push(current);
   endCurrent = grid[getIndex(end)];
 
-  queue.length = 0;
+  queue = [];
   mazeCreated = false;
   solved = false;
 
@@ -332,14 +332,25 @@ const solveMazeCallback = () => {
 regenerateBtn.addEventListener('click', regenerate);
 clearBtn.addEventListener('click', clearBoard);
 solveBtn.addEventListener('click', solveMazeCallback);
-manualFramesBtn.addEventListener('click', (e) => {
-  if (e.ctrlKey) {
-    for (let i = 0; i < 4; i++) {
-      animate();
-    }
-  } else {
-    animate();
+// manualFramesBtn.addEventListener('click', (e) => {
+//   if (e.ctrlKey) {
+//     for (let i = 0; i < 4; i++) {
+//       animate();
+//     }
+//   } else {
+//     animate();
+//   }
+// });
+
+let step = 1;
+
+speedBtn.addEventListener('click', (e) => {
+  speed += step;
+  if (speed === 4 || speed === 1) {
+    step = -step;
   }
+
+  speedBtn.querySelector('span').innerHTML = speed;
 });
 
 canvas.addEventListener('click', (e) => {
@@ -360,7 +371,6 @@ canvas.addEventListener('click', (e) => {
     }
   }
 });
-
 canvas.addEventListener('mousemove', (e) => {
   if (!startGeneration) {
     canvas.style.cursor = 'pointer';
