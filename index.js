@@ -15,7 +15,7 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
-let numberOfCellsHor = isMobile ? 10 : 25;
+let numberOfCellsHor = isMobile ? 10 : 42;
 
 // const cellS = 40;
 // const cols = 45;
@@ -40,6 +40,7 @@ let helperLineOp = 1;
 let mainPathOp = 1;
 const start = [0, 0];
 const end = [cols - 1, rows - 1];
+let manualControls = false;
 
 let finishedPathArr = [];
 
@@ -209,35 +210,34 @@ const drawShell = () => {
 };
 
 const solveMaze = () => {
-  // console.log('solve')
   if (helperLineOp > 0) {
-    // grid
-    //   .filter((el) => el.weight > 0)
-    //   .forEach((el) => {
-    //     el.display(`rgba(230, 200, 250, ${helperLineOp})`);
-    //   });
-
-    ctx.beginPath();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = `rgba(240, 230, 20, ${helperLineOp})`;
     grid
       .filter((el) => el.weight > 0)
-      .forEach((cell) => {
-        grid
-          .filter((el) => el.weight === cell.weight + 1)
-          .forEach((el) => {
-            if (
-              (Math.abs(cell.col - el.col) === 0 ||
-                Math.abs(cell.col - el.col) === 1) &&
-              (Math.abs(cell.row - el.row) === 0 ||
-                Math.abs(cell.row - el.row) === 1)
-            ) {
-              ctx.moveTo(cell.centerX, cell.centerY);
-              ctx.lineTo(el.centerX, el.centerY);
-            }
-          });
+      .forEach((el) => {
+        el.display(`rgba(230, 200, 250, ${helperLineOp * 0.5})`);
       });
-    ctx.stroke();
+
+    // ctx.beginPath();
+    // ctx.lineWidth = 1;
+    // ctx.strokeStyle = `rgba(240, 230, 20, ${helperLineOp})`;
+    // grid
+    //   .filter((el) => el.weight > 0)
+    //   .forEach((cell) => {
+    //     grid
+    //       .filter((el) => el.weight === cell.weight + 1)
+    //       .forEach((el) => {
+    //         if (
+    //           (Math.abs(cell.col - el.col) === 0 ||
+    //             Math.abs(cell.col - el.col) === 1) &&
+    //           (Math.abs(cell.row - el.row) === 0 ||
+    //             Math.abs(cell.row - el.row) === 1)
+    //         ) {
+    //           ctx.moveTo(cell.centerX, cell.centerY);
+    //           ctx.lineTo(el.centerX, el.centerY);
+    //         }
+    //       });
+    //   });
+    // ctx.stroke();
   }
 
   if (solved) {
@@ -267,12 +267,15 @@ const solveMaze = () => {
         node.weight = solveCurrent.weight + 1;
         queue.unshift(node);
       });
-      solveCurrent = solveNext[0];
     }
   }
 
   if (queue.length) {
+    // pop to go to each branch interchangeably
     solveCurrent = queue.pop();
+
+    // shift to go with one branch as long as posible before changing to new branch
+    // solveCurrent = queue.shift();
   } else if (!solved) {
     solved = true;
     console.log('no exit');
@@ -326,7 +329,9 @@ const animate = () => {
   } else {
     drawShell();
   }
-  requestAnimationFrame(animate);
+  if (!manualControls) {
+    requestAnimationFrame(animate);
+  }
 };
 requestAnimationFrame(animate);
 
@@ -375,15 +380,15 @@ const solveMazeCallback = () => {
 regenerateBtn.addEventListener('click', regenerate);
 clearBtn.addEventListener('click', clearBoard);
 solveBtn.addEventListener('click', solveMazeCallback);
-// manualFramesBtn.addEventListener('click', (e) => {
-//   if (e.ctrlKey) {
-//     for (let i = 0; i < 4; i++) {
-//       animate();
-//     }
-//   } else {
-//     animate();
-//   }
-// });
+manualFramesBtn.addEventListener('click', (e) => {
+  if (e.ctrlKey) {
+    for (let i = 0; i < 4; i++) {
+      animate();
+    }
+  } else {
+    animate();
+  }
+});
 
 let step = 1;
 
@@ -399,6 +404,17 @@ speedBtn.addEventListener('click', (e) => {
   }
 
   speedBtn.querySelector('span').innerHTML = speed;
+});
+
+manualFramesCheckbox.addEventListener('change', (e) => {
+  if (manualFramesCheckbox.checked) {
+    manualControls = true;
+    manualFramesBtn.removeAttribute('disabled');
+  } else {
+    manualControls = false;
+    animate();
+    manualFramesBtn.setAttribute('disabled', true);
+  }
 });
 
 canvas.addEventListener('click', (e) => {
