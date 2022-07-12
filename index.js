@@ -15,7 +15,7 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
-let numberOfCellsHor = isMobile ? 10 : 42;
+let numberOfCellsHor = isMobile ? 10 : 30;
 
 // const cellS = 40;
 // const cols = 45;
