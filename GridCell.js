@@ -93,10 +93,10 @@ class GridCell {
     this.ctx.beginPath();
     this.ctx.fillStyle = color;
     this.ctx.fillRect(
-      this.col * this.cellS + this.wallsWidth * 0.5 + this.xOffset,
+      this.col * this.cellS + this.wallsWidth * 0.5,
       this.row * this.cellS + this.wallsWidth * 0.5,
-      this.cellS - this.wallsWidth,
-      this.cellS - this.wallsWidth
+      this.cellS,
+      this.cellS
     );
   }
 

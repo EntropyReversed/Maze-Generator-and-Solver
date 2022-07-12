@@ -2,20 +2,34 @@
 import './style.css';
 import { GridCell } from './GridCell';
 
+const drawTarget = (ctx, color, size, lineW, col, row) => {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.fillRect(
+    col * size + lineW * 1.5,
+    row * size + lineW * 1.5,
+    size - lineW,
+    size - lineW
+  );
+};
+
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
 let numberOfCellsHor = isMobile ? 10 : 25;
 
-// const cellS = 70;
-// const cols = 20;
-// const rows = 12;
+// const cellS = 40;
+// const cols = 45;
+// const rows = 22;
 const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
 const cols = Math.floor((window.innerWidth - cellS) / cellS);
 const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
 const maxH = rows * cellS;
-const canvas = document.querySelector('canvas');
+const canvas = document.querySelector('.main-canvas');
 const ctx = canvas.getContext('2d');
+const bgcCanvas = document.querySelector('.bgc-canvas');
+const bgcCtx = bgcCanvas.getContext('2d');
+
 let speed = 1;
 let stack = [];
 let grid = [];
@@ -43,14 +57,14 @@ const getIndex = (coords) => {
   return coords[0] + coords[1] * cols;
 };
 
-canvas.width = maxW + lineW * 2;
-canvas.height = maxH + lineW * 2;
+canvas.width = bgcCanvas.width = maxW + lineW * 2;
+canvas.height = bgcCanvas.height = maxH + lineW * 2;
 
 let xOffset = (canvas.width - maxW) * 0.5;
 
 window.addEventListener('resize', () => {
-  canvas.width = maxW + lineW * 2;
-  canvas.height = maxH + lineW * 2;
+  canvas.width = bgcCanvas.width = maxW + lineW * 2;
+  canvas.height = bgcCanvas.height = maxH + lineW * 2;
   xOffset = (canvas.width - maxW) * 0.5;
 });
 
@@ -74,9 +88,10 @@ const drawMaze = () => {
   if (!mazeCreated) {
     current.isVisited = true;
 
-    if (stack.length > 0) {
+    if (current.index !== getIndex(start) && stack.length > 0) {
       current.display('orange');
     }
+
     next = current.getAdjacent();
 
     if (next) {
@@ -103,44 +118,45 @@ const drawMaze = () => {
       });
       ctx.stroke();
     }
+
+    grid.forEach((rect) => {
+      rect.draw();
+    });
+    ctx.strokeRect(xOffset, lineW, maxW, maxH);
+
+    //start
+    const targetStartCell = grid[getIndex(start)];
+    drawTarget(
+      ctx,
+      'rgba(0, 255, 0, 0.3)',
+      cellS,
+      lineW,
+      targetStartCell.col,
+      targetStartCell.row
+    );
+
+    //end
+    const targetEndCell = grid[getIndex(end)];
+    drawTarget(
+      ctx,
+      'rgba(255, 0, 0, 0.3)',
+      cellS,
+      lineW,
+      targetEndCell.col,
+      targetEndCell.row
+    );
   }
 
-  grid.forEach((rect) => {
-    rect.draw();
-  });
-
-  ctx.strokeRect(xOffset, lineW, maxW, maxH);
-
-  ctx.beginPath();
-  ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
-  //Start
-  ctx.fillRect(
-    grid[getIndex(start)].col * cellS + lineW * 1.5,
-    grid[getIndex(start)].row * cellS + lineW * 1.5,
-    cellS - lineW,
-    cellS - lineW
-  );
-
-  //End
-  ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-  ctx.fillRect(
-    grid[getIndex(end)].col * cellS + lineW * 1.5,
-    grid[getIndex(end)].row * cellS + lineW * 1.5,
-    cellS - lineW,
-    cellS - lineW
-  );
-  ctx.fill();
-
-  if (shouldSolveMaze && stack.length === 0 && !mazeCreated) {
+  if (stack.length === 0 && !mazeCreated) {
+    mazeCreated = true;
     grid.forEach((cell) => {
       cell.isVisited = false;
-      cell.grid = grid;
     });
     solveCurrent = grid[getIndex(start)];
     solveCurrent.isVisited = true;
     solveCurrent.weight = 1;
     queue.unshift(solveCurrent);
-    mazeCreated = true;
+    bgcCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
   }
 
   if (shouldSolveMaze && mazeCreated) {
@@ -188,16 +204,19 @@ const drawShell = () => {
     cellS * 0.5
   );
 
-  ctx.beginPath();
-  ctx.lineWidth = 10;
-  ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
-  ctx.fillRect(start[0] * cellS, start[1] * cellS, cellS, cellS);
-  ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-  ctx.fillRect(end[0] * cellS, end[1] * cellS, cellS, cellS);
+  drawTarget(ctx, 'rgba(0, 255, 0, 0.3)', cellS, lineW, start[0], start[1]);
+  drawTarget(ctx, 'rgba(255, 0, 0, 0.3)', cellS, lineW, end[0], end[1]);
 };
 
 const solveMaze = () => {
+  // console.log('solve')
   if (helperLineOp > 0) {
+    // grid
+    //   .filter((el) => el.weight > 0)
+    //   .forEach((el) => {
+    //     el.display(`rgba(230, 200, 250, ${helperLineOp})`);
+    //   });
+
     ctx.beginPath();
     ctx.lineWidth = 1;
     ctx.strokeStyle = `rgba(240, 230, 20, ${helperLineOp})`;
@@ -312,6 +331,7 @@ const animate = () => {
 requestAnimationFrame(animate);
 
 const regenerate = () => {
+  bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
   helperLineOp = 1;
   finishedPathArr = [];
 
@@ -324,11 +344,6 @@ const regenerate = () => {
   mazeCreated = false;
   solved = false;
 
-  grid.forEach((cell) => {
-    cell.isVisited = false;
-    cell.grid = grid;
-  });
-
   solveCurrent = grid[getIndex(start)];
   solveCurrent.isVisited = true;
   solveCurrent.weight = 1;
@@ -336,10 +351,24 @@ const regenerate = () => {
 };
 
 const clearBoard = () => {
+  bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
   startGeneration = false;
 };
 
 const solveMazeCallback = () => {
+  // queue = [];
+  // solved = false;
+  // helperLineOp = 1;
+  // finishedPathArr = [];
+
+  // grid.forEach((cell) => {
+  //   cell.weight = 0;
+  // });
+
+  // solveCurrent = grid[getIndex(start)];
+  // solveCurrent.isVisited = true;
+  // solveCurrent.weight = 1;
+  // queue.unshift(solveCurrent);
   shouldSolveMaze = true;
 };
 
