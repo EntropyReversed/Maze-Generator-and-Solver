@@ -2,6 +2,13 @@ const randomIntFromInterval = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+const getIndexC = (col, row, cols, rows) => {
+  if (col < 0 || row < 0 || col > cols - 1 || row > rows - 1) {
+    return -1;
+  }
+  return col + row * cols;
+};
+
 class GridCell {
   constructor(ctx, grid, cols, rows, col, row, cellS, lineWidth, xOffset) {
     this.ctx = ctx;
@@ -18,54 +25,58 @@ class GridCell {
     this.wallsWidth = lineWidth;
     this.walls = [true, true];
     this.isVisited = false;
+    this.top;
+    this.right;
+    this.bottom;
+    this.left;
     this.weight = 0;
   }
 
-  getIndex(col, row) {
-    if (col < 0 || row < 0 || col > this.cols - 1 || row > this.rows - 1) {
-      return -1;
-    }
-    return col + row * this.cols;
+  setAdjecent() {
+    this.top =
+      this.grid[getIndexC(this.col, this.row - 1, this.cols, this.rows)];
+    this.right =
+      this.grid[getIndexC(this.col + 1, this.row, this.cols, this.rows)];
+    this.bottom =
+      this.grid[getIndexC(this.col, this.row + 1, this.cols, this.rows)];
+    this.left =
+      this.grid[getIndexC(this.col - 1, this.row, this.cols, this.rows)];
   }
 
   getAdjacent(onlyOne = true, weights = false) {
     const adjecent = [];
 
-    // top
-    const t = this.grid[this.getIndex(this.col, this.row - 1)];
-    // right
-    const r = this.grid[this.getIndex(this.col + 1, this.row)];
-    // bottom
-    const b = this.grid[this.getIndex(this.col, this.row + 1)];
-    // left
-    const l = this.grid[this.getIndex(this.col - 1, this.row)];
-
     if (
-      t &&
-      (weights || (!t.isVisited && (onlyOne ? true : t.walls[1] === false)))
+      this.top &&
+      (weights ||
+        (!this.top.isVisited && (onlyOne ? true : this.top.walls[1] === false)))
     ) {
-      adjecent.push(t);
+      adjecent.push(this.top);
     }
 
     if (
-      r &&
-      (weights || (!r.isVisited && (onlyOne ? true : this.walls[0] === false)))
+      this.right &&
+      (weights ||
+        (!this.right.isVisited && (onlyOne ? true : this.walls[0] === false)))
     ) {
-      adjecent.push(r);
+      adjecent.push(this.right);
     }
 
     if (
-      b &&
-      (weights || (!b.isVisited && (onlyOne ? true : this.walls[1] === false)))
+      this.bottom &&
+      (weights ||
+        (!this.bottom.isVisited && (onlyOne ? true : this.walls[1] === false)))
     ) {
-      adjecent.push(b);
+      adjecent.push(this.bottom);
     }
 
     if (
-      l &&
-      (weights || (!l.isVisited && (onlyOne ? true : l.walls[0] === false)))
+      this.left &&
+      (weights ||
+        (!this.left.isVisited &&
+          (onlyOne ? true : this.left.walls[0] === false)))
     ) {
-      adjecent.push(l);
+      adjecent.push(this.left);
     }
 
     if (adjecent.length > 0) {

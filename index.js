@@ -17,12 +17,12 @@ const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
 let numberOfCellsHor = isMobile ? 10 : 30;
 
-// const cellS = 40;
-// const cols = 45;
-// const rows = 22;
-const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
-const cols = Math.floor((window.innerWidth - cellS) / cellS);
-const rows = Math.floor((window.innerHeight - cellS) / cellS);
+const cellS = 140;
+const cols = 6;
+const rows = 6;
+// const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
+// const cols = Math.floor((window.innerWidth - cellS) / cellS);
+// const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
 const maxH = rows * cellS;
 const canvas = document.querySelector('.main-canvas');
@@ -80,13 +80,19 @@ const generateMaze = () => {
     }
   }
 
+  grid.forEach((cell) => {
+    cell.setAdjecent();
+  });
+
   startGeneration = true;
   shouldSolveMaze = false;
 };
 
 const drawMaze = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   if (!mazeCreated) {
+    bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
     current.isVisited = true;
 
     if (current.index !== getIndex(start) && stack.length > 0) {
@@ -127,8 +133,9 @@ const drawMaze = () => {
 
     //start
     const targetStartCell = grid[getIndex(start)];
+
     drawTarget(
-      ctx,
+      bgcCtx,
       'rgba(0, 255, 0, 0.3)',
       cellS,
       lineW,
@@ -139,7 +146,7 @@ const drawMaze = () => {
     //end
     const targetEndCell = grid[getIndex(end)];
     drawTarget(
-      ctx,
+      bgcCtx,
       'rgba(255, 0, 0, 0.3)',
       cellS,
       lineW,
@@ -288,7 +295,7 @@ const drawPath = (arr) => {
   ctx.lineCap = 'round';
   ctx.strokeStyle = `rgba(0,255,0,${mainPathOp})`;
   arr.forEach((path, key) => {
-    if (key > 1) {
+    if (key > 0) {
       ctx.moveTo(
         arr[key - 1].col * cellS + cellS * 0.5 + lineW * 0.5,
         arr[key - 1].row * cellS + cellS * 0.5 + lineW * 0.5
