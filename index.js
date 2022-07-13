@@ -15,7 +15,7 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
-let numberOfCellsHor = isMobile ? 10 : 20;
+let numberOfCellsHor = isMobile ? 10 : 50;
 
 // const cellS = 140;
 // const cols = 6;
@@ -236,6 +236,7 @@ const solveMaze = () => {
           });
         ctx.stroke();
         cell.display(`rgba(230, 200, 250, ${helperLineOp * 0.2})`, true);
+        // cell.printWeight()
       });
   }
 
@@ -283,18 +284,27 @@ const drawPath = (arr) => {
   ctx.strokeStyle = `rgba(0,255,0,${mainPathOp})`;
   arr.forEach((path, key) => {
     if (key > 0) {
-      ctx.moveTo(
-        arr[key - 1].centerX,
-        arr[key - 1].centerY
-      );
-
-      ctx.lineTo(
-        path.centerX,
-        path.centerY
-      );
+      ctx.moveTo(arr[key - 1].centerX, arr[key - 1].centerY);
+      ctx.lineTo(path.centerX, path.centerY);
     }
   });
+
+  ctx.moveTo(arr[arr.length - 1].centerX, arr[arr.length - 1].centerY);
+  ctx.lineTo(grid[getIndex(start)].centerX, grid[getIndex(start)].centerY);
   ctx.stroke();
+  console.log(arr.length);
+  if (arr[arr.length - 1].index !== grid[getIndex(start)].index) {
+    ctx.beginPath();
+    ctx.fillStyle = 'red';
+    ctx.arc(
+      arr[arr.length - 1].centerX,
+      arr[arr.length - 1].centerY,
+      5,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+  }
 };
 
 const calculatePath = () => {
