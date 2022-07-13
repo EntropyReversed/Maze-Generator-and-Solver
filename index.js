@@ -346,7 +346,7 @@ const regenerate = () => {
   solveCurrent = grid[getIndex(start)];
   solveCurrent.isVisited = true;
   solveCurrent.weight = 1;
-  if (manualControls && +speedRange.value === 0) {
+  if (manualControls && speed === 0) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     animate();
   }
