@@ -97,6 +97,25 @@ const drawMaze = () => {
       current.display('orange');
     }
 
+    if (stack.length) {
+      ctx.beginPath();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'orange';
+      ctx.moveTo(
+        stack[0].col * cellS + cellS * 0.5,
+        stack[0].row * cellS + cellS * 0.5
+      );
+      stack.forEach((rect, key) => {
+        rect.joinLine();
+      });
+      ctx.lineTo(current.centerX, current.centerY);
+      ctx.stroke();
+    }
+
+    grid.forEach((rect) => {
+      rect.draw();
+    });
+
     next = current.getAdjacent();
 
     if (next) {
@@ -108,25 +127,6 @@ const drawMaze = () => {
       current = stack.pop();
     }
 
-    if (stack.length) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'orange';
-      ctx.moveTo(
-        stack[0].col * cellS + cellS * 0.5,
-        stack[0].row * cellS + cellS * 0.5
-      );
-      stack.forEach((rect, key) => {
-        if (key > 1) {
-          rect.joinLine();
-        }
-      });
-      ctx.stroke();
-    }
-
-    grid.forEach((rect) => {
-      rect.draw();
-    });
     ctx.strokeRect(xOffset, lineW, maxW, maxH);
 
     //start
@@ -284,13 +284,13 @@ const drawPath = (arr) => {
   arr.forEach((path, key) => {
     if (key > 0) {
       ctx.moveTo(
-        arr[key - 1].col * cellS + cellS * 0.5 + lineW * 0.5,
-        arr[key - 1].row * cellS + cellS * 0.5 + lineW * 0.5
+        arr[key - 1].centerX,
+        arr[key - 1].centerY
       );
 
       ctx.lineTo(
-        path.col * cellS + cellS * 0.5 + lineW * 0.5,
-        path.row * cellS + cellS * 0.5 + lineW * 0.5
+        path.centerX,
+        path.centerY
       );
     }
   });
