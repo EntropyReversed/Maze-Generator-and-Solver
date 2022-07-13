@@ -15,14 +15,14 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
-let numberOfCellsHor = isMobile ? 10 : 30;
+let numberOfCellsHor = isMobile ? 10 : 27;
 
-const cellS = 140;
-const cols = 6;
-const rows = 6;
-// const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
-// const cols = Math.floor((window.innerWidth - cellS) / cellS);
-// const rows = Math.floor((window.innerHeight - cellS) / cellS);
+// const cellS = 140;
+// const cols = 6;
+// const rows = 6;
+const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
+const cols = Math.floor((window.innerWidth - cellS) / cellS);
+const rows = Math.floor((window.innerHeight - cellS) / cellS);
 const maxW = cols * cellS;
 const maxH = rows * cellS;
 const canvas = document.querySelector('.main-canvas');
@@ -48,8 +48,6 @@ let mazeCreated = false;
 let next;
 let current;
 
-let queue = [];
-let solveNext;
 let solveCurrent;
 
 let endCurrent;
@@ -163,7 +161,6 @@ const drawMaze = () => {
     solveCurrent = grid[getIndex(start)];
     solveCurrent.isVisited = true;
     solveCurrent.weight = 1;
-    queue.unshift(solveCurrent);
     bgcCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
   }
 
@@ -173,47 +170,47 @@ const drawMaze = () => {
 };
 
 const drawShell = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      ctx.beginPath();
-      ctx.lineWidth = lineW;
-      ctx.strokeStyle = 'white';
-      ctx.lineCap = 'square';
-      ctx.strokeRect(xOffset, lineW, maxW, maxH);
+      bgcCtx.beginPath();
+      bgcCtx.lineWidth = lineW;
+      bgcCtx.strokeStyle = 'white';
+      bgcCtx.lineCap = 'square';
+      bgcCtx.strokeRect(xOffset, lineW, maxW, maxH);
 
       if (row !== rows - 1) {
         //right
-        ctx.moveTo(col * cellS + xOffset, row * cellS + cellS + lineW);
-        ctx.lineTo((col + 1) * cellS + xOffset, row * cellS + cellS + lineW);
+        bgcCtx.moveTo(col * cellS + xOffset, row * cellS + cellS + lineW);
+        bgcCtx.lineTo((col + 1) * cellS + xOffset, row * cellS + cellS + lineW);
       }
 
       if (col !== cols - 1) {
         //down
-        ctx.moveTo((col + 1) * cellS + xOffset, row * cellS + lineW);
-        ctx.lineTo((col + 1) * cellS + xOffset, (row + 1) * cellS + lineW);
+        bgcCtx.moveTo((col + 1) * cellS + xOffset, row * cellS + lineW);
+        bgcCtx.lineTo((col + 1) * cellS + xOffset, (row + 1) * cellS + lineW);
       }
 
-      ctx.stroke();
+      bgcCtx.stroke();
     }
   }
-  ctx.beginPath();
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(canvas.width * 0.5 - 220, cellS * 0.5 - 30, 440, 50);
+  bgcCtx.beginPath();
+  bgcCtx.fillStyle = 'rgba(0,0,0,0.5)';
+  bgcCtx.fillRect(canvas.width * 0.5 - 220, cellS * 0.5 - 30, 440, 50);
 
-  ctx.beginPath();
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'white';
-  ctx.font = '24px serif';
-  ctx.fillText(
+  bgcCtx.beginPath();
+  bgcCtx.textAlign = 'center';
+  bgcCtx.fillStyle = 'white';
+  bgcCtx.font = '24px serif';
+  bgcCtx.fillText(
     'click to place start, ctrl+click to place end',
     canvas.width * 0.5,
     cellS * 0.5
   );
 
-  drawTarget(ctx, 'rgba(0, 255, 0, 0.3)', cellS, lineW, start[0], start[1]);
-  drawTarget(ctx, 'rgba(255, 0, 0, 0.3)', cellS, lineW, end[0], end[1]);
+  drawTarget(bgcCtx, 'rgba(0, 255, 0, 0.3)', cellS, lineW, start[0], start[1]);
+  drawTarget(bgcCtx, 'rgba(255, 0, 0, 0.3)', cellS, lineW, end[0], end[1]);
 };
 
 const solveMaze = () => {
@@ -222,11 +219,12 @@ const solveMaze = () => {
       .filter((el) => el.weight > 0)
       .forEach((el) => {
         el.display(`rgba(230, 200, 250, ${helperLineOp * 0.5})`);
+        // el.printWeight();
       });
 
     // ctx.beginPath();
     // ctx.lineWidth = 1;
-    // ctx.strokeStyle = `rgba(240, 230, 20, ${helperLineOp})`;
+    // ctx.strokeStyle = `rgba(230, 200, 250, ${helperLineOp})`;
     // grid
     //   .filter((el) => el.weight > 0)
     //   .forEach((cell) => {
@@ -257,35 +255,30 @@ const solveMaze = () => {
   }
 
   if (!solved) {
-    if (solveCurrent.index === getIndex(end)) {
-      solved = true;
-      endCurrent = grid[getIndex(end)];
-      console.log('found end');
-      return;
-    }
-
-    if (solveCurrent) {
-      solveNext = solveCurrent.getAdjacent(false);
-    }
-
-    if (solveNext) {
-      solveNext.forEach((node) => {
-        node.isVisited = true;
-        node.weight = solveCurrent.weight + 1;
-        queue.unshift(node);
+    const arr = [];
+    grid.forEach((cell) => {
+      if (cell.weight > 0) {
+        const adjecent = cell.getAdjacent(false);
+        if (adjecent) {
+          adjecent.forEach((adj) => {
+            if (adj.index === getIndex(end)) {
+              solved = true;
+              endCurrent = grid[getIndex(end)];
+              console.log('found end');
+            }
+            if (!adj.isVisited) {
+              arr.push([adj, cell]);
+            }
+          });
+        }
+      }
+    });
+    if (arr) {
+      arr.forEach((adj) => {
+        adj[0].weight = adj[1].weight + 1;
+        adj[0].isVisited = true;
       });
     }
-  }
-
-  if (queue.length) {
-    // pop to go to each branch interchangeably
-    solveCurrent = queue.pop();
-
-    // shift to go with one branch as long as posible before changing to new branch
-    // solveCurrent = queue.shift();
-  } else if (!solved) {
-    solved = true;
-    console.log('no exit');
   }
 };
 
@@ -300,6 +293,7 @@ const drawPath = (arr) => {
         arr[key - 1].col * cellS + cellS * 0.5 + lineW * 0.5,
         arr[key - 1].row * cellS + cellS * 0.5 + lineW * 0.5
       );
+
       ctx.lineTo(
         path.col * cellS + cellS * 0.5 + lineW * 0.5,
         path.row * cellS + cellS * 0.5 + lineW * 0.5
@@ -352,35 +346,39 @@ const regenerate = () => {
   stack.push(current);
   endCurrent = grid[getIndex(end)];
 
-  queue = [];
   mazeCreated = false;
   solved = false;
 
   solveCurrent = grid[getIndex(start)];
   solveCurrent.isVisited = true;
   solveCurrent.weight = 1;
-  queue.unshift(solveCurrent);
+
+  if (manualControls) {
+    animate();
+  }
 };
 
 const clearBoard = () => {
   bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   startGeneration = false;
 };
 
 const solveMazeCallback = () => {
-  // queue = [];
-  // solved = false;
-  // helperLineOp = 1;
-  // finishedPathArr = [];
+  if (mazeCreated) {
+    solved = false;
+    helperLineOp = 1;
+    finishedPathArr = [];
 
-  // grid.forEach((cell) => {
-  //   cell.weight = 0;
-  // });
+    grid.forEach((cell) => {
+      cell.weight = 0;
+      cell.isVisited = false;
+    });
 
-  // solveCurrent = grid[getIndex(start)];
-  // solveCurrent.isVisited = true;
-  // solveCurrent.weight = 1;
-  // queue.unshift(solveCurrent);
+    solveCurrent = grid[getIndex(start)];
+    solveCurrent.isVisited = true;
+    solveCurrent.weight = 1;
+  }
   shouldSolveMaze = true;
 };
 
@@ -397,30 +395,23 @@ manualFramesBtn.addEventListener('click', (e) => {
   }
 });
 
-let step = 1;
-
-speedBtn.addEventListener('click', (e) => {
-  // speed += step;
-  // if (speed === 4 || speed === 1) {
-  //   step = -step;
-  // }
-
-  speed += step;
-  if (speed === 5) {
-    speed = 1;
-  }
-
-  speedBtn.querySelector('span').innerHTML = speed;
+speedRange.addEventListener('input', (e) => {
+  speed = +speedRange.value;
+  speedRange.setAttribute('data-value', speedRange.value);
 });
 
 manualFramesCheckbox.addEventListener('change', (e) => {
   if (manualFramesCheckbox.checked) {
     manualControls = true;
     manualFramesBtn.removeAttribute('disabled');
+    speedRange.setAttribute('disabled', true);
+    speedRange.value = 1;
   } else {
     manualControls = false;
     animate();
+    speedRange.value = +speedRange.dataset.value;
     manualFramesBtn.setAttribute('disabled', true);
+    speedRange.removeAttribute('disabled');
   }
 });
 
