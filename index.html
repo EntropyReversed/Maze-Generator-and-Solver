@@ -3,13 +3,28 @@
   <canvas class="bgc-canvas"></canvas>
 </div>
 
-<div class="buttons-wrap">
+<div class="controls-wrap">
   <button id="regenerateBtn" type="button">Generate</button>
   <button id="solveBtn" type="button">Solve</button>
-  <input type="range" id="speedRange" min="0" max="4" step="1" value="1" data-value="1">Speed</input>
-  
-  <input type="checkbox" id="manualFramesCheckbox">Manual Frames</input>
+
+  <div class="input-wrap">
+    <span>Speed</span>
+    <input
+      type="range"
+      id="speedRange"
+      min="0"
+      max="4"
+      step="1"
+      value="1"
+      data-value="1"
+    />
+  </div>
+
+  <div class="input-wrap">
+    <span>Manual Frames</span>
+    <input type="checkbox" id="manualFramesCheckbox" />
+  </div>
   <button id="manualFramesBtn" type="button" disabled>Go to next</button>
-  
+
   <button id="clearBtn" type="button">Clear</button>
 </div>

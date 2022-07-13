@@ -100,14 +100,14 @@ class GridCell {
     this.ctx.lineTo(this.centerX, this.centerY);
   }
 
-  display(color) {
+  display(color, inset = false) {
     this.ctx.beginPath();
     this.ctx.fillStyle = color;
     this.ctx.fillRect(
-      this.col * this.cellS + this.wallsWidth * 0.5,
-      this.row * this.cellS + this.wallsWidth * 0.5,
-      this.cellS,
-      this.cellS
+      this.col * this.cellS + this.wallsWidth * (inset ? 0.5 : 1.5),
+      this.row * this.cellS + this.wallsWidth * (inset ? 0.5 : 1.5),
+      this.cellS - (inset ? 0 : this.wallsWidth),
+      this.cellS - (inset ? 0 : this.wallsWidth)
     );
   }
 

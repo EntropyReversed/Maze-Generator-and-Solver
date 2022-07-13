@@ -15,7 +15,7 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
 const lineW = isMobile ? 2 : 4;
-let numberOfCellsHor = isMobile ? 10 : 27;
+let numberOfCellsHor = isMobile ? 10 : 20;
 
 // const cellS = 140;
 // const cols = 6;
@@ -215,34 +215,28 @@ const drawShell = () => {
 
 const solveMaze = () => {
   if (helperLineOp > 0) {
+    ctx.beginPath();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(230, 200, 250, ${helperLineOp})`;
     grid
       .filter((el) => el.weight > 0)
-      .forEach((el) => {
-        el.display(`rgba(230, 200, 250, ${helperLineOp * 0.5})`);
-        // el.printWeight();
+      .forEach((cell) => {
+        grid
+          .filter((el) => el.weight === cell.weight + 1)
+          .forEach((el) => {
+            if (
+              (Math.abs(cell.col - el.col) === 0 ||
+                Math.abs(cell.col - el.col) === 1) &&
+              (Math.abs(cell.row - el.row) === 0 ||
+                Math.abs(cell.row - el.row) === 1)
+            ) {
+              ctx.moveTo(cell.centerX, cell.centerY);
+              ctx.lineTo(el.centerX, el.centerY);
+            }
+          });
+        ctx.stroke();
+        cell.display(`rgba(230, 200, 250, ${helperLineOp * 0.2})`, true);
       });
-
-    // ctx.beginPath();
-    // ctx.lineWidth = 1;
-    // ctx.strokeStyle = `rgba(230, 200, 250, ${helperLineOp})`;
-    // grid
-    //   .filter((el) => el.weight > 0)
-    //   .forEach((cell) => {
-    //     grid
-    //       .filter((el) => el.weight === cell.weight + 1)
-    //       .forEach((el) => {
-    //         if (
-    //           (Math.abs(cell.col - el.col) === 0 ||
-    //             Math.abs(cell.col - el.col) === 1) &&
-    //           (Math.abs(cell.row - el.row) === 0 ||
-    //             Math.abs(cell.row - el.row) === 1)
-    //         ) {
-    //           ctx.moveTo(cell.centerX, cell.centerY);
-    //           ctx.lineTo(el.centerX, el.centerY);
-    //         }
-    //       });
-    //   });
-    // ctx.stroke();
   }
 
   if (solved) {
@@ -284,7 +278,7 @@ const solveMaze = () => {
 
 const drawPath = (arr) => {
   ctx.beginPath();
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   ctx.strokeStyle = `rgba(0,255,0,${mainPathOp})`;
   arr.forEach((path, key) => {
@@ -352,8 +346,8 @@ const regenerate = () => {
   solveCurrent = grid[getIndex(start)];
   solveCurrent.isVisited = true;
   solveCurrent.weight = 1;
-
-  if (manualControls) {
+  if (manualControls && +speedRange.value === 0) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     animate();
   }
 };
@@ -406,12 +400,14 @@ manualFramesCheckbox.addEventListener('change', (e) => {
     manualFramesBtn.removeAttribute('disabled');
     speedRange.setAttribute('disabled', true);
     speedRange.value = 1;
+    speed = speedRange.value;
   } else {
     manualControls = false;
-    animate();
     speedRange.value = +speedRange.dataset.value;
+    speed = speedRange.value;
     manualFramesBtn.setAttribute('disabled', true);
     speedRange.removeAttribute('disabled');
+    animate();
   }
 });
 
