@@ -19,8 +19,11 @@ class GridCell {
     this.xOffset = xOffset;
     this.col = col;
     this.row = row;
-    this.centerX = this.col * this.cellS + this.cellS * 0.5;
-    this.centerY = this.row * this.cellS + this.cellS * 0.5;
+    // this.centerX = this.col * this.cellS + this.cellS * 0.5;
+    // this.centerY = this.row * this.cellS + this.cellS * 0.5;
+
+    this.centerX = this.col * this.cellS + this.cellS * 0.5 + lineWidth;
+    this.centerY = this.row * this.cellS + this.cellS * 0.5 + lineWidth;
     this.index = this.col + this.row * this.cols;
     this.wallsWidth = lineWidth;
     this.walls = [true, true];
@@ -104,8 +107,8 @@ class GridCell {
     this.ctx.beginPath();
     this.ctx.fillStyle = color;
     this.ctx.fillRect(
-      this.col * this.cellS + this.wallsWidth * (inset ? 0.5 : 1.5),
-      this.row * this.cellS + this.wallsWidth * (inset ? 0.5 : 1.5),
+      this.col * this.cellS + this.wallsWidth * (inset ? 1 : 1.5),
+      this.row * this.cellS + this.wallsWidth * (inset ? 1 : 1.5),
       this.cellS - (inset ? 0 : this.wallsWidth),
       this.cellS - (inset ? 0 : this.wallsWidth)
     );
