@@ -14,8 +14,8 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 };
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
-const lineW = isMobile ? 2 : 4;
-let numberOfCellsHor = isMobile ? 10 : 50;
+const lineW = isMobile ? 2 : 10;
+let numberOfCellsHor = isMobile ? 10 : 20;
 
 // const cellS = 140;
 // const cols = 6;
@@ -29,6 +29,14 @@ const canvas = document.querySelector('.main-canvas');
 const ctx = canvas.getContext('2d');
 const bgcCanvas = document.querySelector('.bgc-canvas');
 const bgcCtx = bgcCanvas.getContext('2d');
+const colors = {
+  maze: 'white',
+  start: 'rgba(0, 255, 0, 0.3)',
+  end: 'rgba(255, 0, 0, 0.3)',
+  solver: '230, 200, 250',
+  solved: '0, 255, 0',
+  solverRay: 'red',
+};
 
 let speed = 1;
 let stack = [];
@@ -36,7 +44,7 @@ let grid = [];
 let startGeneration = false;
 let shouldSolveMaze = false;
 let solved = false;
-let helperLineOp = 1;
+let solverLineOp = 1;
 let mainPathOp = 1;
 const start = [0, 0];
 const end = [cols - 1, rows - 1];
@@ -67,7 +75,7 @@ window.addEventListener('resize', () => {
   xOffset = (canvas.width - maxW) * 0.5;
 });
 
-const generateMaze = () => {
+const initiateMaze = () => {
   stack = [];
   grid = [];
   for (let row = 0; row < rows; row++) {
@@ -134,7 +142,7 @@ const drawMaze = () => {
 
     drawTarget(
       bgcCtx,
-      'rgba(0, 255, 0, 0.3)',
+      colors.start,
       cellS,
       lineW,
       targetStartCell.col,
@@ -145,7 +153,7 @@ const drawMaze = () => {
     const targetEndCell = grid[getIndex(end)];
     drawTarget(
       bgcCtx,
-      'rgba(255, 0, 0, 0.3)',
+      colors.end,
       cellS,
       lineW,
       targetEndCell.col,
@@ -209,15 +217,15 @@ const drawShell = () => {
     cellS * 0.5
   );
 
-  drawTarget(bgcCtx, 'rgba(0, 255, 0, 0.3)', cellS, lineW, start[0], start[1]);
-  drawTarget(bgcCtx, 'rgba(255, 0, 0, 0.3)', cellS, lineW, end[0], end[1]);
+  drawTarget(bgcCtx, colors.start, cellS, lineW, start[0], start[1]);
+  drawTarget(bgcCtx, colors.end, cellS, lineW, end[0], end[1]);
 };
 
 const solveMaze = () => {
-  if (helperLineOp > 0) {
+  if (solverLineOp > 0) {
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = `rgba(230, 200, 250, ${helperLineOp})`;
+    ctx.strokeStyle = `rgba(${colors.solver}, ${solverLineOp})`;
     grid
       .filter((el) => el.weight > 0)
       .forEach((cell) => {
@@ -235,17 +243,17 @@ const solveMaze = () => {
             }
           });
         ctx.stroke();
-        cell.display(`rgba(230, 200, 250, ${helperLineOp * 0.2})`, true);
+        cell.display(`rgba(${colors.solver}, ${solverLineOp * 0.2})`, true);
         // cell.printWeight()
       });
   }
 
   if (solved) {
     calculatePath();
-    if (helperLineOp < 0.05) {
-      helperLineOp = 0;
+    if (solverLineOp < 0.05) {
+      solverLineOp = 0;
     } else {
-      helperLineOp *= 0.97;
+      solverLineOp *= 0.97;
     }
   }
 
@@ -281,7 +289,7 @@ const drawPath = (arr) => {
   ctx.beginPath();
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = `rgba(0,255,0,${mainPathOp})`;
+  ctx.strokeStyle = `rgba(${colors.solved},${mainPathOp})`;
   arr.forEach((path, key) => {
     if (key > 0) {
       ctx.moveTo(arr[key - 1].centerX, arr[key - 1].centerY);
@@ -289,22 +297,27 @@ const drawPath = (arr) => {
     }
   });
 
-  ctx.moveTo(arr[arr.length - 1].centerX, arr[arr.length - 1].centerY);
-  ctx.lineTo(grid[getIndex(start)].centerX, grid[getIndex(start)].centerY);
   ctx.stroke();
-  console.log(arr.length);
-  if (arr[arr.length - 1].index !== grid[getIndex(start)].index) {
+  if (arr.length + 1 !== grid[getIndex(end)].weight) {
     ctx.beginPath();
-    ctx.fillStyle = 'red';
+    ctx.fillStyle = colors.solverRay;
     ctx.arc(
       arr[arr.length - 1].centerX,
       arr[arr.length - 1].centerY,
-      5,
+      cellS * 0.1,
       0,
       Math.PI * 2
     );
     ctx.fill();
+
+    ctx.strokeStyle = colors.solverRay;
+  } else {
+    ctx.strokeStyle = `rgb(${colors.solved})`;
   }
+  ctx.beginPath();
+  ctx.moveTo(arr[arr.length - 1].centerX, arr[arr.length - 1].centerY);
+  ctx.lineTo(grid[getIndex(start)].centerX, grid[getIndex(start)].centerY);
+  ctx.stroke();
 };
 
 const calculatePath = () => {
@@ -340,12 +353,13 @@ const animate = () => {
 };
 requestAnimationFrame(animate);
 
-const regenerate = () => {
+// on user input
+const regenerateCallback = () => {
   bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
-  helperLineOp = 1;
+  solverLineOp = 1;
   finishedPathArr = [];
 
-  generateMaze();
+  initiateMaze();
   current = grid[getIndex(start)];
   stack.push(current);
   endCurrent = grid[getIndex(end)];
@@ -362,7 +376,7 @@ const regenerate = () => {
   }
 };
 
-const clearBoard = () => {
+const clearBoardCallback = () => {
   bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   startGeneration = false;
@@ -371,7 +385,7 @@ const clearBoard = () => {
 const solveMazeCallback = () => {
   if (mazeCreated) {
     solved = false;
-    helperLineOp = 1;
+    solverLineOp = 1;
     finishedPathArr = [];
 
     grid.forEach((cell) => {
@@ -386,8 +400,8 @@ const solveMazeCallback = () => {
   shouldSolveMaze = true;
 };
 
-regenerateBtn.addEventListener('click', regenerate);
-clearBtn.addEventListener('click', clearBoard);
+regenerateBtn.addEventListener('click', regenerateCallback);
+clearBtn.addEventListener('click', clearBoardCallback);
 solveBtn.addEventListener('click', solveMazeCallback);
 manualFramesBtn.addEventListener('click', (e) => {
   if (e.ctrlKey) {
