@@ -109,10 +109,7 @@ const drawMaze = () => {
       ctx.beginPath();
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'orange';
-      ctx.moveTo(
-        stack[0].col * cellS + cellS * 0.5,
-        stack[0].row * cellS + cellS * 0.5
-      );
+      ctx.moveTo(stack[0].centerX, stack[0].centerY);
       stack.forEach((rect, key) => {
         rect.joinLine();
       });
