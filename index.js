@@ -59,6 +59,7 @@ let current;
 let solveCurrent;
 
 let endCurrent;
+let mazeImage = new Image();
 
 const getIndex = (coords) => {
   return coords[0] + coords[1] * cols;
@@ -73,6 +74,34 @@ window.addEventListener('resize', () => {
   canvas.width = bgcCanvas.width = maxW + lineW * 2;
   canvas.height = bgcCanvas.height = maxH + lineW * 2;
   xOffset = (canvas.width - maxW) * 0.5;
+
+  if (mazeImage) {
+    console.log('resize maze', mazeImage);
+    bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
+    bgcCtx.drawImage(mazeImage, 0, 0, canvas.width, canvas.height);
+
+    // start
+    const targetStartCell = grid[getIndex(start)];
+    drawTarget(
+      bgcCtx,
+      colors.start,
+      cellS,
+      lineW,
+      targetStartCell.col,
+      targetStartCell.row
+    );
+
+    //end
+    const targetEndCell = grid[getIndex(end)];
+    drawTarget(
+      bgcCtx,
+      colors.end,
+      cellS,
+      lineW,
+      targetEndCell.col,
+      targetEndCell.row
+    );
+  }
 });
 
 const initiateMaze = () => {
@@ -166,6 +195,9 @@ const drawMaze = () => {
     solveCurrent = grid[getIndex(start)];
     solveCurrent.isVisited = true;
     solveCurrent.weight = 1;
+    mazeImage.src = canvas
+      .toDataURL('image/png')
+      .replace('image/png', 'image/octet-stream');
     bgcCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
   }
 
