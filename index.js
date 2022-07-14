@@ -14,7 +14,7 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 };
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
-const lineW = isMobile ? 2 : 4;
+const lineW = isMobile ? 2 : 2;
 let numberOfCellsHor = isMobile ? 10 : 30;
 
 // const cellS = 140;
@@ -80,27 +80,31 @@ window.addEventListener('resize', () => {
     bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
     bgcCtx.drawImage(mazeImage, 0, 0, canvas.width, canvas.height);
 
-    // start
-    const targetStartCell = grid[getIndex(start)];
-    drawTarget(
-      bgcCtx,
-      colors.start,
-      cellS,
-      lineW,
-      targetStartCell.col,
-      targetStartCell.row
-    );
+    if (grid[getIndex(start)]) {
+      // start
+      const targetStartCell = grid[getIndex(start)];
+      drawTarget(
+        bgcCtx,
+        colors.start,
+        cellS,
+        lineW,
+        targetStartCell.col,
+        targetStartCell.row
+      );
+    }
 
-    //end
-    const targetEndCell = grid[getIndex(end)];
-    drawTarget(
-      bgcCtx,
-      colors.end,
-      cellS,
-      lineW,
-      targetEndCell.col,
-      targetEndCell.row
-    );
+    if (grid[getIndex(end)]) {
+      //end
+      const targetEndCell = grid[getIndex(end)];
+      drawTarget(
+        bgcCtx,
+        colors.end,
+        cellS,
+        lineW,
+        targetEndCell.col,
+        targetEndCell.row
+      );
+    }
   }
 });
 
