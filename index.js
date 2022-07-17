@@ -14,17 +14,15 @@ const drawTarget = (ctx, color, size, lineW, col, row) => {
 };
 
 const isMobile = window.matchMedia('(max-width: 600px)').matches;
-const lineW = isMobile ? 2 : 2;
-let numberOfCellsHor = isMobile ? 10 : 30;
+const lineW = isMobile ? 2 : 4;
 
-// const cellS = 140;
-// const cols = 6;
-// const rows = 6;
-const cellS = Math.floor(window.innerWidth / numberOfCellsHor);
-const cols = Math.floor((window.innerWidth - cellS) / cellS);
-const rows = Math.floor((window.innerHeight - cellS) / cellS);
-const maxW = cols * cellS;
-const maxH = rows * cellS;
+let cellS;
+let cols;
+let rows;
+let maxW;
+let maxH;
+let start;
+let end;
 const canvas = document.querySelector('.main-canvas');
 const ctx = canvas.getContext('2d');
 const bgcCanvas = document.querySelector('.bgc-canvas');
@@ -38,6 +36,22 @@ const colors = {
   solverRay: 'red',
 };
 
+const setUpSizes = (cellSize, c, r) => {
+  cellS = cellSize;
+  cols = c;
+  rows = r;
+  maxW = cols * cellS;
+  maxH = rows * cellS;
+  start = [0, 0];
+  end = [cols - 1, rows - 1];
+
+  cellSizeInput.value = cellS;
+  colsInput.value = cols;
+  rowsInput.value = rows;
+};
+
+setUpSizes(100, 10, 6);
+
 let speed = 1;
 let stack = [];
 let grid = [];
@@ -46,8 +60,6 @@ let shouldSolveMaze = false;
 let solved = false;
 let solverLineOp = 1;
 let mainPathOp = 1;
-const start = [0, 0];
-const end = [cols - 1, rows - 1];
 let manualControls = false;
 
 let finishedPathArr = [];
@@ -71,6 +83,7 @@ canvas.height = bgcCanvas.height = maxH + lineW * 2;
 let xOffset = (canvas.width - maxW) * 0.5;
 
 window.addEventListener('resize', () => {
+  // setUpSizes(window.innerWidth / 10, 10, 10);
   canvas.width = bgcCanvas.width = maxW + lineW * 2;
   canvas.height = bgcCanvas.height = maxH + lineW * 2;
   xOffset = (canvas.width - maxW) * 0.5;
@@ -388,6 +401,11 @@ requestAnimationFrame(animate);
 
 // on user input
 const regenerateCallback = () => {
+  // setUpSizes(
+  //   10,
+  //   36,
+  //   6
+  // );
   bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
   solverLineOp = 1;
   finishedPathArr = [];
