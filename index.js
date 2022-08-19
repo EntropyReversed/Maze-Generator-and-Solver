@@ -50,7 +50,7 @@ const setUpSizes = (cellSize, c, r) => {
   rowsInput.value = rows;
 };
 
-setUpSizes(100, 10, 6);
+setUpSizes(50, 36, 18);
 
 let speed = 1;
 let stack = [];
