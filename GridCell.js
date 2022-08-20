@@ -19,9 +19,6 @@ class GridCell {
     this.xOffset = xOffset;
     this.col = col;
     this.row = row;
-    // this.centerX = this.col * this.cellS + this.cellS * 0.5;
-    // this.centerY = this.row * this.cellS + this.cellS * 0.5;
-
     this.centerX = this.col * this.cellS + this.cellS * 0.5 + lineWidth;
     this.centerY = this.row * this.cellS + this.cellS * 0.5 + lineWidth;
     this.index = this.col + this.row * this.cols;

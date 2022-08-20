@@ -50,7 +50,7 @@ const setUpSizes = (cellSize, c, r) => {
   rowsInput.value = rows;
 };
 
-setUpSizes(50, 36, 18);
+setUpSizes(60, 10, 10);
 
 let speed = 1;
 let stack = [];
@@ -118,8 +118,6 @@ const reinitMaze = () => {
     }
   }
 };
-
-window.addEventListener('resize', reinitMaze);
 
 const initiateMaze = () => {
   stack = [];
@@ -398,6 +396,8 @@ const animate = () => {
   }
 };
 requestAnimationFrame(animate);
+
+window.addEventListener('resize', reinitMaze);
 
 // on user input
 const regenerateCallback = () => {
