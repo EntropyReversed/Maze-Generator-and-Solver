@@ -82,14 +82,12 @@ canvas.height = bgcCanvas.height = maxH + lineW * 2;
 
 let xOffset = (canvas.width - maxW) * 0.5;
 
-window.addEventListener('resize', () => {
-  // setUpSizes(window.innerWidth / 10, 10, 10);
+const reinitMaze = () => {
   canvas.width = bgcCanvas.width = maxW + lineW * 2;
   canvas.height = bgcCanvas.height = maxH + lineW * 2;
   xOffset = (canvas.width - maxW) * 0.5;
 
   if (mazeImage) {
-    console.log('resize maze', mazeImage);
     bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
     bgcCtx.drawImage(mazeImage, 0, 0, canvas.width, canvas.height);
 
@@ -119,7 +117,9 @@ window.addEventListener('resize', () => {
       );
     }
   }
-});
+};
+
+window.addEventListener('resize', reinitMaze);
 
 const initiateMaze = () => {
   stack = [];
@@ -401,11 +401,6 @@ requestAnimationFrame(animate);
 
 // on user input
 const regenerateCallback = () => {
-  // setUpSizes(
-  //   10,
-  //   36,
-  //   6
-  // );
   bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
   solverLineOp = 1;
   finishedPathArr = [];
@@ -451,10 +446,7 @@ const solveMazeCallback = () => {
   shouldSolveMaze = true;
 };
 
-regenerateBtn.addEventListener('click', regenerateCallback);
-clearBtn.addEventListener('click', clearBoardCallback);
-solveBtn.addEventListener('click', solveMazeCallback);
-manualFramesBtn.addEventListener('click', (e) => {
+const manualFramesCallback = (e) => {
   if (e.ctrlKey) {
     for (let i = 0; i < 4; i++) {
       animate();
@@ -462,14 +454,23 @@ manualFramesBtn.addEventListener('click', (e) => {
   } else {
     animate();
   }
-});
+};
 
-speedRange.addEventListener('input', (e) => {
+const submitGridInfoCallback = (e) => {
+  e.preventDefault();
+  setUpSizes(+cellSizeInput.value, +colsInput.value, +rowsInput.value);
+  reinitMaze();
+  bgcCtx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  startGeneration = false;
+};
+
+const speedRangeCallback = () => {
   speed = +speedRange.value;
   speedRange.setAttribute('data-value', speedRange.value);
-});
+};
 
-manualFramesCheckbox.addEventListener('change', (e) => {
+const manualFramesCheckboxCallback = () => {
   if (manualFramesCheckbox.checked) {
     manualControls = true;
     manualFramesBtn.removeAttribute('disabled');
@@ -484,9 +485,9 @@ manualFramesCheckbox.addEventListener('change', (e) => {
     speedRange.removeAttribute('disabled');
     animate();
   }
-});
+};
 
-canvas.addEventListener('click', (e) => {
+const setStartEndCallback = (e) => {
   if (!startGeneration) {
     const colNo = Math.floor(
       (e.clientX - canvas.getBoundingClientRect().x) / cellS
@@ -503,7 +504,26 @@ canvas.addEventListener('click', (e) => {
       start[1] = rowNo;
     }
   }
+};
+
+regenerateBtn.addEventListener('click', regenerateCallback);
+clearBtn.addEventListener('click', clearBoardCallback);
+solveBtn.addEventListener('click', solveMazeCallback);
+speedRange.addEventListener('input', speedRangeCallback);
+manualFramesCheckbox.addEventListener('change', manualFramesCheckboxCallback);
+
+manualFramesBtn.addEventListener('click', (e) => {
+  manualFramesCallback(e);
 });
+
+submitGridInfo.addEventListener('click', (e) => {
+  submitGridInfoCallback(e);
+});
+
+canvas.addEventListener('click', (e) => {
+  setStartEndCallback(e);
+});
+
 canvas.addEventListener('mousemove', (e) => {
   if (!startGeneration) {
     canvas.style.cursor = 'pointer';
