@@ -35,6 +35,22 @@ const colors = {
   solved: '0, 255, 0',
   solverRay: 'red',
 };
+let speed = 1;
+let stack = [];
+let grid = [];
+let startGeneration = false;
+let shouldSolveMaze = false;
+let solved = false;
+let solverLineOp = 1;
+let mainPathOp = 1;
+let manualControls = false;
+let finishedPathArr = [];
+let mazeCreated = false;
+let next;
+let current;
+let solveCurrent;
+let endCurrent;
+let mazeImage = new Image();
 
 const setUpSizes = (cellSize, c, r) => {
   cellS = cellSize;
@@ -50,28 +66,11 @@ const setUpSizes = (cellSize, c, r) => {
   rowsInput.value = rows;
 };
 
-setUpSizes(60, 10, 10);
-
-let speed = 1;
-let stack = [];
-let grid = [];
-let startGeneration = false;
-let shouldSolveMaze = false;
-let solved = false;
-let solverLineOp = 1;
-let mainPathOp = 1;
-let manualControls = false;
-
-let finishedPathArr = [];
-
-let mazeCreated = false;
-let next;
-let current;
-
-let solveCurrent;
-
-let endCurrent;
-let mazeImage = new Image();
+setUpSizes(
+  isMobile ? 40 : 60,
+  Math.floor((window.innerWidth - 60 * (isMobile ? 0 : 4)) / 60),
+  Math.floor((window.innerHeight - 60 * (isMobile ? 0 : 4)) / 60)
+);
 
 const getIndex = (coords) => {
   return coords[0] + coords[1] * cols;
@@ -248,17 +247,17 @@ const drawShell = () => {
     }
   }
   bgcCtx.beginPath();
-  bgcCtx.fillStyle = 'rgba(0,0,0,0.5)';
-  bgcCtx.fillRect(canvas.width * 0.5 - 220, cellS * 0.5 - 30, 440, 50);
+  bgcCtx.fillStyle = 'rgba(0,0,0,0.9)';
+  bgcCtx.fillRect(canvas.width * 0.5 - 230, cellS * 0.5 - 20, 460, 50);
 
   bgcCtx.beginPath();
   bgcCtx.textAlign = 'center';
   bgcCtx.fillStyle = 'white';
-  bgcCtx.font = '24px serif';
+  bgcCtx.font = `${isMobile ? 16 : 24}px sans-serif`;
   bgcCtx.fillText(
-    'click to place start, ctrl+click to place end',
+    'Click to place start, ctrl+click to place end',
     canvas.width * 0.5,
-    cellS * 0.5
+    cellS * 0.5 + 12
   );
 
   drawTarget(bgcCtx, colors.start, cellS, lineW, start[0], start[1]);
@@ -446,15 +445,15 @@ const solveMazeCallback = () => {
   shouldSolveMaze = true;
 };
 
-const manualFramesCallback = (e) => {
-  if (e.ctrlKey) {
-    for (let i = 0; i < 4; i++) {
-      animate();
-    }
-  } else {
-    animate();
-  }
-};
+// const manualFramesCallback = (e) => {
+//   if (e.ctrlKey) {
+//     for (let i = 0; i < 4; i++) {
+//       animate();
+//     }
+//   } else {
+//     animate();
+//   }
+// };
 
 const submitGridInfoCallback = (e) => {
   e.preventDefault();
@@ -470,22 +469,22 @@ const speedRangeCallback = () => {
   speedRange.setAttribute('data-value', speedRange.value);
 };
 
-const manualFramesCheckboxCallback = () => {
-  if (manualFramesCheckbox.checked) {
-    manualControls = true;
-    manualFramesBtn.removeAttribute('disabled');
-    speedRange.setAttribute('disabled', true);
-    speedRange.value = 1;
-    speed = speedRange.value;
-  } else {
-    manualControls = false;
-    speedRange.value = +speedRange.dataset.value;
-    speed = speedRange.value;
-    manualFramesBtn.setAttribute('disabled', true);
-    speedRange.removeAttribute('disabled');
-    animate();
-  }
-};
+// const manualFramesCheckboxCallback = () => {
+//   if (manualFramesCheckbox.checked) {
+//     manualControls = true;
+//     manualFramesBtn.removeAttribute('disabled');
+//     speedRange.setAttribute('disabled', true);
+//     speedRange.value = 1;
+//     speed = speedRange.value;
+//   } else {
+//     manualControls = false;
+//     speedRange.value = +speedRange.dataset.value;
+//     speed = speedRange.value;
+//     manualFramesBtn.setAttribute('disabled', true);
+//     speedRange.removeAttribute('disabled');
+//     animate();
+//   }
+// };
 
 const setStartEndCallback = (e) => {
   if (!startGeneration) {
@@ -510,11 +509,11 @@ regenerateBtn.addEventListener('click', regenerateCallback);
 clearBtn.addEventListener('click', clearBoardCallback);
 solveBtn.addEventListener('click', solveMazeCallback);
 speedRange.addEventListener('input', speedRangeCallback);
-manualFramesCheckbox.addEventListener('change', manualFramesCheckboxCallback);
+// manualFramesCheckbox.addEventListener('change', manualFramesCheckboxCallback);
 
-manualFramesBtn.addEventListener('click', (e) => {
-  manualFramesCallback(e);
-});
+// manualFramesBtn.addEventListener('click', (e) => {
+//   manualFramesCallback(e);
+// });
 
 submitGridInfo.addEventListener('click', (e) => {
   submitGridInfoCallback(e);

@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Major+Mono+Display');
+
 body {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -6,6 +9,7 @@ body {
   margin: 0;
   margin-top: 20px;
   background-color: #222;
+  font-family: sans-serif;
 }
 
 .canvas-wrap {
@@ -29,6 +33,7 @@ canvas {
 
 .controls-wrap {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   margin-top: 20px;
 }
@@ -40,6 +45,8 @@ canvas {
   align-items: center;
   color: white;
   margin-inline: 10px;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .controls-wrap input {
@@ -63,4 +70,28 @@ button {
   font-size: 20px;
   margin-inline: 10px;
   cursor: pointer;
+}
+
+#clearBtn {
+  margin-top: 20px;
+}
+
+form {
+  align-self: baseline;
+  width: 200px;
+  margin: 10px;
+}
+
+form label {
+  color: white;
+  margin-bottom: 6px;
+}
+
+form button {
+  margin: 0;
+  margin-top: 20px;
+}
+
+form div {
+  margin-top: 10px;
 }
