@@ -25,10 +25,6 @@ class GridCell {
     this.wallsWidth = lineWidth;
     this.walls = [true, true];
     this.isVisited = false;
-    this.top;
-    this.right;
-    this.bottom;
-    this.left;
     this.weight = 0;
   }
 
